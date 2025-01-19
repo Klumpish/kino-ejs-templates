@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/kino-bio-projekt/', // Replace 'my-vite-app' with your repository name
+  base: '/static/dist', // Replace 'my-vite-app' with your repository name
   build: {
     outDir: 'static/dist',
     rollupOptions: {
@@ -10,7 +10,17 @@ export default defineConfig({
       },
       output: {
         entryFileNames: 'compiledJS.js',
-        assetFileNames: 'compiledCSS.[ext]',
+        assetFileNames: ({ name, type }) => {
+          if (type === 'asset' && name) {
+            if (/.(jpg|jpeg|png|gif|svg|webp)$/i.test(name)) {
+              return 'images/[name]-[hash][extname]';
+            }
+
+            if (name.endsWith('.css')) {
+              return 'compiledCSS.[ext]';
+            }
+          }
+        },
       },
     },
   },
