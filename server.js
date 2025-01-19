@@ -1,26 +1,45 @@
 import express from 'express';
-import fs from 'fs/promises';
+import ejs from 'ejs';
+import { loadMovie, loadMovies } from './lib/movies.js';
 
 // create a new express application/server
 const app = express();
 
+// sets the view engine to EJS
+app.set('view engine', 'ejs');
+// sets view directory (the folder containg EJS files)
+app.set('views', './views');
+
 app.get('/', async (request, response) => {
-  const buf = await fs.readFile('./dist/index.html');
-  const html = buf.toString();
-  response.send(html);
-});
-app.get('/about-us.html', async (request, response) => {
-  const buf = await fs.readFile('./dist/about-us.html');
-  const html = buf.toString();
-  response.send(html);
-});
-app.get('/movies', async (request, response) => {
-  const buf = await fs.readFile('./dist/movies.html');
-  const html = buf.toString();
-  response.send(html);
+  try {
+    const movies = await loadMovies();
+    const limitedMovies = movies.slice(0, 4); //gets the first 4 movies
+    response.render('index.ejs', { movies: limitedMovies });
+  } catch (err) {
+    console.error('Error loading movie', err);
+    response.status(500).send('Error loading movie');
+  }
 });
 
-app.use('/kino-bio-projekt', express.static('./dist'));
+app.get('/about-us', async (request, response) => {
+  response.render('about-us.ejs');
+});
+app.get('/movies', async (request, response) => {
+  const movies = await loadMovies();
+  response.render('movies.ejs', { movies });
+});
+
+app.get('/movie/:movieId', async (request, response) => {
+  try {
+    const movie = await loadMovie(request.params.movieId);
+    response.render('movie', { movie });
+  } catch (err) {
+    console.error('Error loading movie', err);
+    response.status(500).send('Error loading movie');
+  }
+});
+
+app.use('/static', express.static('./static'));
 app.listen(5080, () => {
   console.log('Server running at http://localhost:5080');
 });
