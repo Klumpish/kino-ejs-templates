@@ -14,3 +14,25 @@ describe('404 Error handling', () => {
     expect(response.text).toContain('The page you are looking for does not exist.');
   });
 });
+
+describe('Movie page', () => {
+  it('should display the correct movie title', async () => {
+    const movieId = '4'; //change later for a correct movie id
+
+    // makes request tot the server
+    const response = await request(app).get(`/movie/${movieId}`);
+
+    // fetch the title from the API response
+    const movie = await import('./lib/movies.js').then(({ loadMovie }) => loadMovie(movieId));
+
+    // get the title from the API response
+    const movieTitle = movie.attributes.title;
+
+    // log the title
+    console.log('Title from API:', movieTitle);
+    // check if statuscode is 200 (ok)
+    expect(response.status).toBe(200);
+
+    expect(response.text).toContain(`<h1 class=\"movie__single__header\">${movieTitle}</h1>`);
+  });
+});
