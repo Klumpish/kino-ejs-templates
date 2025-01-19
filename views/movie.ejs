@@ -6,7 +6,7 @@
       <%if (movie.attributes.image) {%>
       <img class="movie__single__img" src="<%=movie.attributes.image.url%>" />
       <%}%>
-      <div class="movie__single__intro"><%=movie.attributes.intro%></div>
+      <div class="movie__single__intro"><%-movie.attributes.intro%></div>
       <a class="primary_button__back" href="/movies">Back to movies page</a>
     </article>
   </div>

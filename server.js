@@ -1,6 +1,8 @@
 import express from 'express';
 import ejs from 'ejs';
 import { loadMovie, loadMovies } from './lib/movies.js';
+// converts markdown text in to html
+import * as marked from 'marked';
 
 // create a new express application/server
 const app = express();
@@ -29,9 +31,16 @@ app.get('/movies', async (request, response) => {
   response.render('movies.ejs', { movies });
 });
 
+// single movie page
 app.get('/movie/:movieId', async (request, response) => {
   try {
     const movie = await loadMovie(request.params.movieId);
+
+    // convert movie intro text from markdown to html
+    if (movie && movie.attributes && movie.attributes.intro) {
+      movie.attributes.intro = marked.marked(movie.attributes.intro);
+    }
+
     response.render('movie', { movie });
   } catch (err) {
     console.error('Error loading movie', err);
@@ -42,4 +51,8 @@ app.get('/movie/:movieId', async (request, response) => {
 app.use('/static', express.static('./static'));
 app.listen(5080, () => {
   console.log('Server running at http://localhost:5080');
+});
+
+app.use((request, response, next) => {
+  response.status(404).render('404');
 });
