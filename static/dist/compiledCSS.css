@@ -882,3 +882,21 @@ body {
   text-align: center;
   margin-top: 5rem;
 }
+
+.error {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  text-align: center;
+  gap: 2rem;
+  margin: 5rem 0;
+  margin-bottom: 5rem;
+}
+.error__header {
+  color: #dcdcdc;
+}
+
+.error__text {
+  color: #dcdcdc;
+}

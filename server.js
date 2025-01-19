@@ -36,11 +36,13 @@ app.get('/movie/:movieId', async (request, response) => {
   try {
     const movie = await loadMovie(request.params.movieId);
 
+    if (!movie) {
+      return response.status(404).render('404');
+    }
     // convert movie intro text from markdown to html
     if (movie && movie.attributes && movie.attributes.intro) {
       movie.attributes.intro = marked.marked(movie.attributes.intro);
     }
-
     response.render('movie', { movie });
   } catch (err) {
     console.error('Error loading movie', err);
@@ -49,10 +51,15 @@ app.get('/movie/:movieId', async (request, response) => {
 });
 
 app.use('/static', express.static('./static'));
-app.listen(5080, () => {
-  console.log('Server running at http://localhost:5080');
-});
 
 app.use((request, response, next) => {
   response.status(404).render('404');
 });
+
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(5080, () => {
+    console.log('Server running at http://localhost:5080');
+  });
+}
+
+export default app;
