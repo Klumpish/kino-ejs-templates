@@ -1,12 +1,18 @@
 import request from 'supertest';
-import app from './server'; // rememmber to export  app in server.js
+import { loadMovie, loadMovies } from './lib/movies';
+import initApp from './src/js/app';
+import { test, expect } from '@jest/globals';
 
 describe('404 Error handling', () => {
   it('should return a 404 page when visiting a non-existent movie page', async () => {
+    const app = initApp({
+      loadMovie: async () => null,
+      loadMovies: async () => [],
+    });
+
     const response = await request(app).get('/movie/nonexistent-movie-id');
 
     // checks status code 404
-
     expect(response.status).toBe(404);
 
     // checks if 404-page is rendered correctly
@@ -15,24 +21,47 @@ describe('404 Error handling', () => {
   });
 });
 
-describe('Movie page', () => {
+describe('Movie title from API', () => {
   it('should display the correct movie title', async () => {
-    const movieId = '4'; //change later for a correct movie id
+    const movieId = '2'; //change later for a correct movie id
+
+    const app = initApp({
+      loadMovie: async (id) => ({ attributes: { title: 'Encanto' } }),
+      loadMovies: async () => [{ attributes: { title: 'Encanto' } }],
+    });
 
     // makes request tot the server
     const response = await request(app).get(`/movie/${movieId}`);
 
     // fetch the title from the API response
-    const movie = await import('./lib/movies.js').then(({ loadMovie }) => loadMovie(movieId));
+    const movie = await loadMovie(movieId);
 
     // get the title from the API response
     const movieTitle = movie.attributes.title;
 
     // log the title
     console.log('Title from API:', movieTitle);
+
     // check if statuscode is 200 (ok)
     expect(response.status).toBe(200);
 
+    // checks if the title of the movie is the same as the one on the page.
     expect(response.text).toContain(`<h1 class=\"movie__single__header\">${movieTitle}</h1>`);
   });
+});
+
+test('Movie page shows correct movie title', async () => {
+  const app = initApp({
+    loadMovie: async () => ({
+      id: '1',
+      attributes: {
+        title: 'Encanto',
+      },
+    }),
+    loadMovies: async () => [],
+  });
+
+  const response = await request(app).get('/movie/1').expect('Content-Type', /html/).expect(200);
+
+  expect(response.text).toMatch('Encanto');
 });
