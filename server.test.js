@@ -26,8 +26,8 @@ describe('Movie title from API', () => {
     const movieId = '2'; //change later for a correct movie id
 
     const app = initApp({
-      loadMovie: async (id) => ({ attributes: { title: 'Encanto' } }),
-      loadMovies: async () => [{ attributes: { title: 'Encanto' } }],
+      loadMovie,
+      loadMovies,
     });
 
     // makes request tot the server
@@ -48,20 +48,37 @@ describe('Movie title from API', () => {
     // checks if the title of the movie is the same as the one on the page.
     expect(response.text).toContain(`<h1 class=\"movie__single__header\">${movieTitle}</h1>`);
   });
+  it('Should display all movies from API', async () => {
+    const app = initApp({
+      loadMovies,
+    });
+
+    const response = await request(app).get('/movies');
+
+    expect(response.status).toBe(200);
+    const moviesFromAPI = await loadMovies();
+
+    moviesFromAPI.forEach((movie) => {
+      console.log(movie.attributes.title);
+      expect(response.text).toContain(movie.attributes.title);
+    });
+  });
 });
 
-test('Movie page shows correct movie title', async () => {
-  const app = initApp({
-    loadMovie: async () => ({
-      id: '1',
-      attributes: {
-        title: 'Encanto',
-      },
-    }),
-    loadMovies: async () => [],
+describe('Movie Page shows correct movie title(mock)', () => {
+  test('should display the correct movie title(mock)', async () => {
+    const app = initApp({
+      loadMovie: async () => ({
+        id: '1',
+        attributes: {
+          title: 'Encanto',
+        },
+      }),
+      loadMovies: async () => [],
+    });
+
+    const response = await request(app).get('/movie/1').expect('Content-Type', /html/).expect(200);
+
+    expect(response.text).toMatch('Encanto');
   });
-
-  const response = await request(app).get('/movie/1').expect('Content-Type', /html/).expect(200);
-
-  expect(response.text).toMatch('Encanto');
 });
