@@ -4,7 +4,7 @@ import initApp from './src/js/app';
 import { test, expect } from '@jest/globals';
 
 describe('404 Error handling', () => {
-  it('should return a 404 page when visiting a non-existent movie page', async () => {
+  it('returns a 404 page when visiting a non-existent movie page', async () => {
     const app = initApp({
       loadMovie: async () => null,
       loadMovies: async () => [],
@@ -22,7 +22,7 @@ describe('404 Error handling', () => {
 });
 
 describe('Movie title from API', () => {
-  it('should display the correct movie title', async () => {
+  it('displays the correct movie title from ID', async () => {
     const movieId = '2'; //change later for a correct movie id
 
     const app = initApp({
@@ -48,7 +48,7 @@ describe('Movie title from API', () => {
     // checks if the title of the movie is the same as the one on the page.
     expect(response.text).toContain(`<h1 class=\"movie__single__header\">${movieTitle}</h1>`);
   });
-  it('Should display all movies from API', async () => {
+  it('displays all movies from API on /movies page', async () => {
     const app = initApp({
       loadMovies,
     });
@@ -66,7 +66,7 @@ describe('Movie title from API', () => {
 });
 
 describe('Movie Page shows correct movie title(mock)', () => {
-  test('should display the correct movie title(mock)', async () => {
+  test('display correct movie title(mock)', async () => {
     const app = initApp({
       loadMovie: async () => ({
         id: '1',
